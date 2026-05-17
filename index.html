@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#2cb99a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="인증퀴즈">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>🏥 인증 마스터 퀴즈</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+:root{
+  --teal:#2cb99a;--teal-d:#1a9e82;--teal-l:#e0f7f2;--teal-m:#9fe1d2;
+  --blue:#3a9bd5;--blue-l:#e6f3fb;
+  --green:#4caf7d;--green-l:#e8f7ed;
+  --red:#e05c5c;--red-l:#fdeaea;
+  --gold:#f5a623;--gold-l:#fef5e4;
+  --bg:#f2faf8;--card:#fff;--text:#172e29;--muted:#6b8f86;
+  --border:#cce9e2;--r:16px;--sh:0 2px 14px rgba(44,185,154,.11);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%;min-height:-webkit-fill-available;background:var(--bg);font-family:'Noto Sans KR',sans-serif;color:var(--text)}
+.app{width:100%;max-width:430px;margin:0 auto;min-height:100vh;background:var(--bg)}
+
+/* BAR */
+.bar{background:var(--teal);height:54px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20}
+.bar-title{color:#fff;font-size:15px;font-weight:700;display:flex;align-items:center;gap:7px}
+.bar-btns{display:flex;gap:6px}
+.bar-btn{background:rgba(255,255,255,.2);border:none;border-radius:9px;padding:6px 11px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.bar-btn:active{background:rgba(255,255,255,.35)}
+
+/* INSTALL BANNER */
+.install-banner{background:linear-gradient(135deg,#e6f3fb,#e0f7f2);border:1.5px solid var(--teal-m);border-radius:14px;margin:12px 14px 0;padding:13px 14px;display:flex;align-items:flex-start;gap:11px}
+.install-banner .ib-icon{font-size:28px;flex-shrink:0;margin-top:2px}
+.install-banner .ib-body{flex:1}
+.install-banner .ib-title{font-size:13px;font-weight:700;color:var(--teal);margin-bottom:3px}
+.install-banner .ib-desc{font-size:12px;color:var(--muted);line-height:1.6}
+.install-banner .ib-btns{display:flex;gap:7px;margin-top:9px}
+.ib-btn-main{background:var(--teal);color:#fff;border:none;border-radius:9px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.ib-btn-dismiss{background:none;color:var(--muted);border:1px solid var(--border);border-radius:9px;padding:8px 12px;font-size:12px;cursor:pointer;font-family:inherit}
+
+/* SETUP */
+.setup-box{background:var(--gold-l);border:1.5px solid #f5c87a;border-radius:14px;margin:12px 14px 0;padding:13px 14px}
+.setup-box h3{font-size:13px;font-weight:700;color:#5a3800;margin-bottom:8px}
+.setup-box ol{margin-left:16px;font-size:12px;color:#7a5200;line-height:2.1}
+.setup-box code{background:#fff3cc;border-radius:4px;padding:1px 5px;font-family:monospace;font-size:11px}
+.setup-box a{color:var(--blue);font-weight:700}
+.setup-inp{width:100%;border:1.5px solid #f5c87a;border-radius:9px;padding:9px 11px;font-size:12px;font-family:inherit;background:#fffbf0;margin-top:5px;outline:none}
+.setup-inp:focus{border-color:var(--teal)}
+.setup-save{width:100%;margin-top:8px;border:none;border-radius:9px;padding:10px;background:var(--gold);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.setup-dismiss{display:block;width:100%;margin-top:6px;border:none;background:none;font-size:11px;color:var(--muted);cursor:pointer;font-family:inherit;padding:4px}
+
+/* STATUS */
+.status-row{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);padding:8px 14px 0}
+.dot{width:7px;height:7px;border-radius:50%;background:#ccc;flex-shrink:0}
+.dot.ok{background:var(--green)}.dot.err{background:var(--red)}.dot.warn{background:var(--gold)}
+
+/* SCREEN */
+.screen{display:none;padding:14px}.screen.active{display:block}
+
+/* HERO */
+.hero{text-align:center;padding:16px 0 14px}
+.hero-badge{display:inline-flex;align-items:center;gap:5px;background:var(--teal);color:#fff;font-size:11px;font-weight:700;border-radius:99px;padding:4px 12px;margin-bottom:10px}
+.hero h2{font-size:21px;font-weight:900;color:var(--text);margin-bottom:4px}
+.hero p{font-size:13px;color:var(--muted)}
+
+/* NAME */
+.name-box{background:var(--card);border:1.5px solid var(--teal-m);border-radius:var(--r);padding:14px;margin-bottom:13px;box-shadow:var(--sh)}
+.nb-lbl{font-size:12px;font-weight:700;color:var(--teal);margin-bottom:8px}
+.name-row{display:flex;gap:7px}
+.name-inp{flex:1;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;color:var(--text);background:#fafffe;outline:none;transition:border .18s}
+.name-inp:focus{border-color:var(--teal)}
+.name-set{background:var(--teal);color:#fff;border:none;border-radius:10px;padding:10px 15px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.name-set:active{background:var(--teal-d)}
+.cur-user{font-size:12px;color:var(--muted);margin-top:8px;display:flex;align-items:center;gap:5px}
+.cur-user strong{color:var(--teal);font-weight:700}
+
+/* SECTION LABEL */
+.sec-lbl{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.5px;margin-bottom:8px}
+
+/* CHAP GRID */
+.chap-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:10px}
+.cb{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:13px 11px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:4px;font-family:inherit;transition:all .13s}
+.cb:hover{border-color:var(--teal);background:var(--teal-l)}
+.cb:active{transform:scale(.97)}
+.cb-ico{font-size:20px}.cb-num{font-size:10px;font-weight:700;color:var(--teal)}
+.cb-name{font-size:13px;font-weight:700;color:var(--text)}.cb-desc{font-size:11px;color:var(--muted)}
+.all-btn{width:100%;background:linear-gradient(135deg,var(--teal),var(--blue));color:#fff;border:none;border-radius:14px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px}
+.all-btn:active{transform:scale(.98);opacity:.9}
+
+/* MINI LB */
+.lb-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden}
+.lb-head{background:linear-gradient(135deg,var(--teal),var(--blue));padding:10px 14px;display:flex;align-items:center;justify-content:space-between}
+.lb-head span{color:#fff;font-size:13px;font-weight:700}
+.lb-head .lb-meta{font-size:11px;opacity:.8;color:#fff}
+.lb-empty{padding:18px;text-align:center;font-size:13px;color:var(--muted)}
+.lb-row{display:flex;align-items:center;padding:9px 12px;border-bottom:1px solid var(--teal-l);gap:9px}
+.lb-row:last-child{border-bottom:none}
+.lb-row.me{background:#f0faf7}
+.lb-rank{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--muted);background:var(--bg);flex-shrink:0}
+.lb-rank.r1{background:#ffd700;color:#7a5800}.lb-rank.r2{background:#c0c0c0;color:#3a3a3a}.lb-rank.r3{background:#cd7f32;color:#4a2800}
+.lb-info{flex:1;min-width:0}
+.lb-name{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-name.me{color:var(--teal)}
+.lb-detail{font-size:10px;color:var(--muted);margin-top:1px}
+.lb-val{font-size:16px;font-weight:700;color:var(--teal);text-align:right;flex-shrink:0}
+.lb-val-lbl{font-size:10px;color:var(--muted);text-align:right}
+
+/* QUIZ */
+.qhdr{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.back-btn{background:none;border:1.5px solid var(--border);border-radius:10px;padding:7px 11px;font-size:13px;color:var(--muted);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:3px;flex-shrink:0}
+.back-btn:active{background:var(--teal-l)}
+.q-lbl{font-size:12px;font-weight:700;color:var(--teal);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.q-ctr{font-size:12px;color:var(--muted);flex-shrink:0}
+.prog-wrap{height:6px;background:var(--teal-l);border-radius:99px;margin-bottom:15px;overflow:hidden}
+.prog-bar{height:100%;background:linear-gradient(90deg,var(--teal),var(--blue));border-radius:99px;transition:width .4s ease}
+.qcard{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:17px;box-shadow:var(--sh)}
+.q-num{font-size:11px;font-weight:700;color:var(--teal);margin-bottom:5px;letter-spacing:.3px}
+.q-tag{display:inline-block;font-size:10px;font-weight:700;background:var(--blue-l);color:var(--blue);border-radius:5px;padding:2px 8px;margin-bottom:8px}
+.q-text{font-size:15px;font-weight:700;color:var(--text);line-height:1.6;margin-bottom:14px}
+.choices{display:flex;flex-direction:column;gap:8px}
+.cbtn{border:1.5px solid var(--border);border-radius:12px;padding:12px 13px;background:#fafffe;cursor:pointer;text-align:left;font-size:13px;color:var(--text);font-family:inherit;display:flex;align-items:flex-start;gap:9px;line-height:1.45;transition:all .12s}
+.cbtn:hover:not([disabled]){background:var(--teal-l);border-color:var(--teal)}
+.cbtn:active:not([disabled]){transform:scale(.98)}
+.cbtn.correct{background:var(--green-l);border-color:var(--green);color:#1a4a2e}
+.cbtn.wrong{background:var(--red-l);border-color:var(--red);color:#5a1010}
+.cbtn[disabled]{cursor:default}
+.cnum{font-size:12px;font-weight:700;min-width:18px;color:var(--blue);flex-shrink:0}
+.cbtn.correct .cnum{color:var(--green)}.cbtn.wrong .cnum{color:var(--red)}
+.cico{font-size:15px;margin-left:auto;flex-shrink:0}
+.feedback{display:flex;align-items:flex-start;gap:8px;border-radius:10px;padding:10px 13px;margin-top:12px;font-size:13px;font-weight:700;line-height:1.5}
+.feedback.ok{background:var(--green-l);color:#1a4a2e;border:1px solid #a8dcbc}
+.feedback.ng{background:var(--red-l);color:#5a1010;border:1px solid #f5bcbc}
+.guide-wrap{background:rgba(5,42,33,.44);border-radius:14px;padding:13px;margin-top:11px}
+.gcard{background:var(--card);border-radius:12px;padding:14px}
+.gtag{display:inline-block;font-size:10px;font-weight:700;background:var(--teal-l);color:var(--teal);border-radius:5px;padding:2px 8px;margin-bottom:7px}
+.gtitle{font-size:14px;font-weight:700;color:var(--text);margin-bottom:7px}
+.gbody{font-size:12px;color:#3a5a52;line-height:1.8}
+.gbody ul{padding-left:14px}.gbody li{margin-bottom:3px}.gbody b{color:var(--teal)}
+.next-btn{width:100%;margin-top:11px;border:none;border-radius:12px;padding:13px;background:linear-gradient(135deg,var(--teal),var(--blue));color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+.next-btn:active{opacity:.9}
+
+/* RESULT */
+.res-top{text-align:center;padding:18px 0 14px}
+.res-trophy{font-size:58px;margin-bottom:10px}
+.res-title{font-size:20px;font-weight:900;color:var(--text);margin-bottom:3px}
+.res-sub{font-size:12px;color:var(--muted)}
+.score-ring{width:110px;height:110px;border-radius:50%;background:var(--teal-l);border:4px solid var(--teal);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:14px auto}
+.sr-big{font-size:28px;font-weight:900;color:var(--teal)}.sr-lbl{font-size:11px;color:var(--muted)}
+.res-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px}
+.rs{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;text-align:center}
+.rs-n{font-size:16px;font-weight:700;color:var(--teal)}.rs-l{font-size:10px;color:var(--muted);margin-top:2px}
+.pts-box{background:var(--gold-l);border:1.5px solid #f5c87a;border-radius:12px;padding:11px 14px;text-align:center;margin-bottom:12px;font-size:13px;color:#7a5200;font-weight:700}
+.pts-big{font-size:22px;color:var(--gold)}
+.res-msg{background:var(--teal-l);border:1px solid var(--teal-m);border-radius:12px;padding:12px;font-size:13px;color:#1a4a3a;line-height:1.65;margin-bottom:12px}
+.wrong-section{margin-bottom:12px}
+.wrong-title{font-size:12px;font-weight:700;color:var(--red);margin-bottom:7px}
+.wi{background:var(--red-l);border:1px solid #f5bcbc;border-radius:10px;padding:9px 11px;margin-bottom:6px}
+.wi-q{font-size:12px;font-weight:700;color:#5a1010;margin-bottom:2px;line-height:1.45}
+.wi-a{font-size:11px;color:var(--red)}.wi-tag{font-size:10px;color:#a06060}
+.res-btns{display:flex;flex-direction:column;gap:7px;padding-bottom:30px}
+.rbtn{border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .13s}
+.rbtn:active{opacity:.85;transform:scale(.98)}
+.rbtn.primary{background:linear-gradient(135deg,var(--teal),var(--blue));color:#fff}
+.rbtn.secondary{background:var(--teal-l);color:var(--teal);border:1.5px solid var(--teal-m)}
+.rbtn.ghost{background:var(--card);color:var(--muted);border:1.5px solid var(--border)}
+
+/* LB SCREEN */
+.lb-filter{display:flex;gap:7px;margin-bottom:11px}
+.lf-btn{flex:1;border:1.5px solid var(--border);border-radius:10px;padding:8px 4px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;background:var(--card);color:var(--muted);transition:all .13s}
+.lf-btn.active{background:var(--teal);color:#fff;border-color:var(--teal)}
+.refresh-btn{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:9px;font-size:12px;font-weight:700;background:var(--card);color:var(--teal);cursor:pointer;font-family:inherit;margin-bottom:10px}
+.refresh-btn:active{background:var(--teal-l)}
+
+/* SHARE BTN */
+.share-row{display:flex;gap:8px;margin-bottom:14px}
+.share-btn{flex:1;border:1.5px solid var(--teal-m);border-radius:12px;padding:11px 8px;font-size:13px;font-weight:700;background:var(--teal-l);color:var(--teal);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px}
+.share-btn:active{background:var(--teal-m)}
+.qr-btn{border:1.5px solid var(--border);border-radius:12px;padding:11px 14px;font-size:13px;font-weight:700;background:var(--card);color:var(--muted);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(90px);background:#1a2e28ee;color:#fff;font-size:13px;font-weight:700;padding:11px 20px;border-radius:99px;z-index:100;transition:transform .3s ease;pointer-events:none;white-space:nowrap;backdrop-filter:blur(4px)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* ANIMATIONS */
+@keyframes pop{0%{transform:scale(.82);opacity:0}100%{transform:scale(1);opacity:1}}
+.pop{animation:pop .2s ease forwards}
+@keyframes slideUp{0%{transform:translateY(16px);opacity:0}100%{transform:translateY(0);opacity:1}}
+.slide-up{animation:slideUp .25s ease forwards}
+@keyframes fadeIn{0%{opacity:0}100%{opacity:1}}
+.fade-in{animation:fadeIn .3s ease forwards}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- BAR -->
+<div class="bar">
+  <div class="bar-title">🏥 인증 마스터 퀴즈</div>
+  <div class="bar-btns">
+    <button class="bar-btn" onclick="showScreen('screen-lb')">🏆 순위</button>
+    <button class="bar-btn" onclick="toggleSetup()">⚙️ DB</button>
+  </div>
+</div>
+
+<!-- INSTALL BANNER -->
+<div class="install-banner" id="install-banner" style="display:none">
+  <span class="ib-icon">📲</span>
+  <div class="ib-body">
+    <div class="ib-title">홈 화면에 앱으로 설치하기</div>
+    <div class="ib-desc">설치하면 아이콘 하나로 바로 실행할 수 있어요!</div>
+    <div class="ib-btns">
+      <button class="ib-btn-main" id="install-btn" onclick="installApp()">📲 지금 설치</button>
+      <button class="ib-btn-dismiss" onclick="dismissInstall()">나중에</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETUP BOX -->
+<div class="setup-box" id="setup-box" style="display:none">
+  <h3>⚙️ Supabase 실시간 랭킹 연결</h3>
+  <ol>
+    <li><a href="https://supabase.com" target="_blank">supabase.com</a>에서 무료 프로젝트 생성</li>
+    <li>SQL Editor에서 실행:<br>
+      <code>create table scores(id bigserial primary key, name text unique, total_pts int default 0, games int default 0, total_q int default 0, total_correct int default 0, best_pct int default 0, updated_at timestamptz default now());</code>
+    </li>
+    <li>Settings → API에서 URL과 anon key 복사</li>
+  </ol>
+  <input class="setup-inp" id="sb-url" placeholder="Project URL (https://xxxx.supabase.co)" type="url">
+  <input class="setup-inp" id="sb-key" placeholder="anon / public key" style="margin-top:6px">
+  <button class="setup-save" onclick="saveSupabase()">✅ 저장하고 연결</button>
+  <button class="setup-dismiss" onclick="toggleSetup()">닫기</button>
+</div>
+
+<!-- STATUS ROW -->
+<div class="status-row" id="status-row">
+  <span class="dot" id="db-dot"></span>
+  <span id="db-label"></span>
+</div>
+
+<!-- HOME -->
+<div id="screen-home" class="screen active">
+  <div class="hero">
+    <div class="hero-badge">🏥 의료기관 평가인증 대비</div>
+    <h2>간호사 필수 지침 퀴즈</h2>
+    <p>전체 30문제 · 매번 랜덤 · 실시간 랭킹</p>
+  </div>
+
+  <div class="name-box">
+    <div class="nb-lbl">👤 도전자 이름을 입력하세요</div>
+    <div class="name-row">
+      <input class="name-inp" id="name-input" type="text" placeholder="예: 김간호" maxlength="10" onkeydown="if(event.key==='Enter')setName()">
+      <button class="name-set" onclick="setName()">확인</button>
+    </div>
+    <div class="cur-user" id="cur-user" style="display:none">현재 도전자: <strong id="user-disp"></strong>&nbsp;<button onclick="changeName()" style="background:none;border:none;font-size:11px;color:var(--muted);cursor:pointer;font-family:inherit;padding:0">변경</button></div>
+  </div>
+
+  <div class="share-row" id="share-row" style="display:none">
+    <button class="share-btn" onclick="shareApp()">🔗 카톡으로 공유</button>
+    <button class="qr-btn" onclick="showQR()">QR</button>
+  </div>
+
+  <div class="sec-lbl">📂 챕터별 풀기</div>
+  <div class="chap-grid">
+    <button class="cb" onclick="startMode('chap',0)"><span class="cb-ico">🪪</span><span class="cb-num">1장</span><span class="cb-name">안전 보장</span><span class="cb-desc">환자확인·낙상·손위생</span></button>
+    <button class="cb" onclick="startMode('chap',1)"><span class="cb-ico">📋</span><span class="cb-num">2장</span><span class="cb-name">진료 전달</span><span class="cb-desc">입퇴원·인계·보고</span></button>
+    <button class="cb" onclick="startMode('chap',2)"><span class="cb-ico">💉</span><span class="cb-num">3장</span><span class="cb-name">평가·치료</span><span class="cb-desc">통증·욕창·수혈·CPR</span></button>
+    <button class="cb" onclick="startMode('chap',3)"><span class="cb-ico">💊</span><span class="cb-num">4장</span><span class="cb-name">의약품 관리</span><span class="cb-desc">고위험·마약·냉장</span></button>
+    <button class="cb" onclick="startMode('chap',4)"><span class="cb-ico">🔬</span><span class="cb-num">5장</span><span class="cb-name">수술·진정</span><span class="cb-desc">수술전후·진정모니터</span></button>
+    <button class="cb" onclick="startMode('chap',5)"><span class="cb-ico">🛡️</span><span class="cb-num">6·8장</span><span class="cb-name">권리·감염</span><span class="cb-desc">격리·카테터·사생활</span></button>
+  </div>
+  <button class="all-btn" onclick="startMode('all',null)">🎲 전체 랜덤 30문제 도전!</button>
+
+  <div class="sec-lbl">🏆 명예의 전당 TOP 5</div>
+  <div class="lb-card">
+    <div class="lb-head"><span>점수 순위</span><span class="lb-meta" id="home-lb-meta"></span></div>
+    <div id="home-lb-body"><div class="lb-empty">로딩 중...</div></div>
+  </div>
+  <div style="height:20px"></div>
+</div>
+
+<!-- QUIZ -->
+<div id="screen-quiz" class="screen">
+  <div class="qhdr">
+    <button class="back-btn" onclick="confirmBack()">← 홈</button>
+    <span class="q-lbl" id="q-lbl"></span>
+    <span class="q-ctr" id="q-ctr"></span>
+  </div>
+  <div class="prog-wrap"><div class="prog-bar" id="prog-bar" style="width:0%"></div></div>
+  <div class="qcard">
+    <div class="q-num" id="q-num"></div>
+    <div class="q-tag" id="q-tag"></div>
+    <div class="q-text" id="q-text"></div>
+    <div class="choices" id="choices"></div>
+    <div id="feedback" style="display:none"></div>
+  </div>
+  <div id="guide-area" style="display:none"></div>
+</div>
+
+<!-- RESULT -->
+<div id="screen-result" class="screen">
+  <div class="res-top">
+    <div class="res-trophy" id="r-trophy"></div>
+    <div class="res-title" id="r-title"></div>
+    <div class="res-sub" id="r-sub"></div>
+  </div>
+  <div class="score-ring"><span class="sr-big" id="r-big"></span><span class="sr-lbl">정답</span></div>
+  <div class="res-stats">
+    <div class="rs"><div class="rs-n" id="rs-pct"></div><div class="rs-l">정답률</div></div>
+    <div class="rs"><div class="rs-n" id="rs-wrong"></div><div class="rs-l">틀린 수</div></div>
+    <div class="rs"><div class="rs-n" id="rs-cum"></div><div class="rs-l">누적 점수</div></div>
+  </div>
+  <div class="pts-box" id="pts-box"></div>
+  <div class="res-msg" id="r-msg"></div>
+  <div class="wrong-section" id="wrong-section" style="display:none">
+    <div class="wrong-title">❌ 틀린 문제 복습</div>
+    <div id="wrong-list"></div>
+  </div>
+  <div class="res-btns">
+    <button class="rbtn primary" onclick="retryMode()">🔄 같은 모드 다시 풀기</button>
+    <button class="rbtn secondary" onclick="startMode('all',null)">🎲 전체 랜덤 30문제</button>
+    <button class="rbtn ghost" onclick="showScreen('screen-lb')">🏆 전체 순위 보기</button>
+    <button class="rbtn ghost" onclick="showScreen('screen-home')">← 홈으로</button>
+  </div>
+</div>
+
+<!-- LEADERBOARD -->
+<div id="screen-lb" class="screen">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+    <button class="back-btn" onclick="showScreen('screen-home')">← 홈</button>
+    <span style="font-size:16px;font-weight:700">🏆 명예의 전당</span>
+  </div>
+  <div class="lb-filter">
+    <button class="lf-btn active" id="lf-pts" onclick="switchSort('pts')">점수순</button>
+    <button class="lf-btn" id="lf-pct" onclick="switchSort('pct')">정답률순</button>
+    <button class="lf-btn" id="lf-games" onclick="switchSort('games')">도전횟수순</button>
+  </div>
+  <button class="refresh-btn" onclick="fetchLb(true)">🔄 새로고침</button>
+  <div class="lb-card">
+    <div class="lb-head"><span>전체 순위</span><span class="lb-meta" id="full-lb-meta"></span></div>
+    <div id="full-lb-body"><div class="lb-empty">로딩 중...</div></div>
+  </div>
+  <div style="height:20px"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════
+   QUIZ DATA – 30문제
+══════════════════════════════════════ */
+const ALL_Q=[
+  {chap:"1장",tag:"환자확인 1.1",q:"의약품 투여 전 환자 확인 시 두 가지 지표로 올바른 것은?",choices:["이름+병실번호","이름(개방형 질문)+등록번호","이름+진단명","등록번호+병실번호"],ans:1,g:{tag:"환자확인 지침 1.1",title:"정확한 환자 확인 절차",body:`<ul><li>개방형 질문: "이름이 어떻게 되십니까?" → 환자가 직접 말하도록</li><li>확인 지표: <b>이름 + 등록번호</b> (2가지 필수)</li><li>등록번호 확인 어려울 때: 이름 + 생년월일</li><li>입원환자: 환자인식팔찌 / 외래: 진료카드·예약증</li></ul>`}},
+  {chap:"1장",tag:"구두처방 1.2",q:"구두처방 후 의사가 전산처방으로 전환해야 하는 시간은?",choices:["6시간","12시간","24시간","48시간"],ans:2,g:{tag:"구두처방 지침 1.2",title:"구두·전화처방 절차",body:`<ul><li>Write down → Read back → Confirm 순서 필수</li><li>처방의사는 <b>24시간 이내</b> 전산처방 전환</li><li>처방금기: 혈액제제·항암제·항생제·TPN·마약류</li></ul>`}},
+  {chap:"1장",tag:"낙상재평가 1.4",q:"낙상 고위험 환자(성인)의 재평가 주기는?",choices:["주 1회","2일 1회","1일 1회","근무조마다"],ans:2,g:{tag:"낙상 재평가 지침 1.4",title:"낙상 위험도 평가 주기",body:`<ul><li>성인: Morse Fall Scale / 소아·신생아: Humpty Dumpty Fall Scale</li><li>저위험·중위험: 주 1회 / <b>고위험군: 1일 1회</b></li><li>낙상 사고 발생 후 즉시 재평가</li></ul>`}},
+  {chap:"1장",tag:"낙상예방 1.4",q:"성인 낙상 고위험군 기준(MFS 점수)은?",choices:["20점 이상","35점 이상","46점 이상","60점 이상"],ans:2,g:{tag:"낙상 예방 지침 1.4",title:"낙상 고위험군 기준",body:`<ul><li>성인 MFS <b>46점 이상</b> → 고위험군</li><li>소아 HDFS 12점 이상 → 고위험군</li><li>예방: PHIS Caution '낙', 빨간색 환자인식팔찌, 낙상주의 팻말</li></ul>`}},
+  {chap:"1장",tag:"손위생 1.5",q:"손위생 수행 시 물과 비누를 반드시 사용해야 하는 경우는?",choices:["항상 알코올 손소독제 가능","눈에 보이는 오염 또는 아포생성 세균 의심 시","환자 접촉 전","청결 처치 전"],ans:1,g:{tag:"손위생 지침 1.5",title:"손위생 5가지 순간 및 수행 방법",body:`<ul><li><b>5가지 순간</b>: 환자 접촉 전·후, 청결/무균 처치 전, 혈액·체액 노출 후, 환자 주변 환경 접촉 후</li><li>알코올 손소독제: 20초 이상</li><li><b>물과 비누 필수</b>: 눈에 보이는 오염, C.difficile 의심 시</li></ul>`}},
+  {chap:"1장",tag:"손소독제 1.5",q:"Avagard CHG 손소독제의 개봉 후 유효기간은?",choices:["3개월","6개월","12개월","18개월"],ans:1,g:{tag:"손소독제 관리 지침 1.5",title:"손소독제 유효기간 관리",body:`<ul><li>Avagard CHG: 개봉 후 <b>6개월</b></li><li>3M sanitizer 9270 gel: 개봉 후 12개월</li><li>개봉일·폐기일 반드시 기재 / 외부 샘플 손소독제 비치 금지</li></ul>`}},
+  {chap:"2장",tag:"보고체계 2.4",q:"환자 상태변화 보고 시 사용하는 표준 형식은?",choices:["SOAP","SBAR","DAR","KTAS"],ans:1,g:{tag:"보고 체계 지침 2.4",title:"환자 상태변화 보고 절차",body:`<ul><li><b>SBAR</b>: Situation·Background·Assessment·Recommendation</li><li>보고자: 환자담당 간호사</li><li>1차 호출 불가 시 → 같은 과 의사 → 당직의</li></ul>`}},
+  {chap:"2장",tag:"전동기록 2.4",q:"전동 시 PHIS에서 작성해야 하는 기록은?",choices:["간호정보조사지","전동기록지","욕창위험사정기록","통증관리기록"],ans:1,g:{tag:"전동 지침 2.4",title:"전동 시 의무기록 작성",body:`<ul><li>PHIS 간호기록 → <b>전동기록지</b> 필수 작성</li><li>내용: 환자 상태·투약 정보·간호 문제 및 계획 포함</li></ul>`}},
+  {chap:"2장",tag:"초기평가 2.7",q:"간호 초기평가(간호정보조사지)는 입원 후 몇 시간 이내 작성해야 하는가?",choices:["6시간","12시간","24시간","48시간"],ans:2,g:{tag:"초기평가 지침 2.7",title:"간호 초기평가 기록 기준",body:`<ul><li>PHIS 간호정보조사지: <b>입원 24시간 이내</b> 작성</li><li>항목: 일반정보·입원정보·과거력·경제상태·신체사정 등</li></ul>`}},
+  {chap:"2장",tag:"퇴원정보 2.5",q:"퇴원 시 환자에게 제공해야 할 정보가 아닌 것은?",choices:["퇴원 후 투약 안내","주의사항","다른 환자 퇴원 정보","추후 관리 내용"],ans:2,g:{tag:"퇴원 지침 2.5",title:"퇴원 시 정보 제공 기준",body:`<ul><li>PHIS 퇴원간호기록지에 기록 및 제공</li><li>제공 항목: 퇴원 후 투약·주의사항·의료기관 문의사항·추후 관리</li></ul>`}},
+  {chap:"3장",tag:"통증관리 3.3",q:"통증 중재 후 재평가는 몇 시간 이내에 시행해야 하는가?",choices:["30분 이내","1시간 이내","2시간 이내","4시간 이내"],ans:1,g:{tag:"통증 재평가 지침 3.3",title:"통증 재평가 시점",body:`<ul><li>통증 중재(약물·비약물) 후 <b>1시간 이내</b> 재평가</li><li>NRS 4점 이상 또는 환자 요청 시 중재 제공</li><li>마취회복실: 입실 중 2회 이상 재평가</li></ul>`}},
+  {chap:"3장",tag:"욕창평가 3.6",q:"성인(8세 이상) 욕창 위험도 평가 도구는?",choices:["Humpty Dumpty Scale","Morse Fall Scale","Braden Scale","PUSH Scale"],ans:2,g:{tag:"욕창 평가 지침 3.6",title:"욕창 위험 평가 도구",body:`<ul><li>8세 이상 성인: <b>Braden Scale</b></li><li>1세~8세 미만 소아: Braden Q Scale</li><li>비위험·저위험·중위험: 주 1회 / 고위험·욕창 환자: 1일 1회</li></ul>`}},
+  {chap:"3장",tag:"욕창관리 3.6",q:"욕창 발생 시 진행 상태 평가에 사용하는 도구는?",choices:["Braden Scale","KTAS","PUSH Score","MFS"],ans:2,g:{tag:"욕창 관리 지침 3.6",title:"욕창 발생 환자 관리",body:`<ul><li>stage 1 이상 욕창 발생 시 담당의 보고 후 욕창발생보고서 작성</li><li>욕창 진행 상태: <b>PUSH Score</b>로 평가</li><li>피부욕창관찰기록지에 주 1회 이상 욕창 평가·치료 기록</li></ul>`}},
+  {chap:"3장",tag:"코드블루 3.9",q:"코드블루 신고 전화번호와 선언 형식으로 올바른 것은?",choices:["119, '응급환자 발생'","7119, '성인/소아 코드블루 __동 __층 __부서'","8282, '심폐소생술 필요'","7488, '코드블루 선언'"],ans:1,g:{tag:"CPR 지침 3.9",title:"코드블루 신고 및 CPR 절차",body:`<ul><li>코드블루: <b>7119</b>(연결 실패 시 8282)</li><li>선언: "성인/소아 코드블루 __동 __층 __부서"</li><li>가슴압박:인공호흡 = 30:2 / 2분 CPR → 심장리듬분석 → 필요시 제세동</li></ul>`}},
+  {chap:"3장",tag:"제세동기 3.9",q:"수동 제세동기 Sternum 패들 위치는?",choices:["좌측 쇄골하방","우측 쇄골하방(오른쪽 흉골)","흉골 중앙","좌측 유두 측하방"],ans:1,g:{tag:"제세동기 지침 3.9",title:"수동 제세동기 사용법",body:`<ul><li>Sternum 패들: <b>우측 쇄골하방</b>(오른쪽 흉골)</li><li>Apex 패들: 좌측 유두 측하방(왼쪽 옆구리)</li><li>패들에 초음파 젤 도포 → 충전 → "모두 떨어지세요" → SHOCK</li></ul>`}},
+  {chap:"3장",tag:"수혈관리 3.10",q:"혈액전용냉장고 없이 불출된 혈액제제 첫 단위를 수혈 시작해야 하는 시간은?",choices:["10분 이내","30분 이내","1시간 이내","2시간 이내"],ans:1,g:{tag:"수혈 지침 3.10",title:"수혈 관리 및 부작용 대처",body:`<ul><li>혈액전용냉장고 없는 경우: 출고 후 <b>30분 이내</b> 수혈 시작</li><li>수혈 직전 <b>2인 의료인</b>이 이름·등록번호·혈액형·혈액번호 확인</li><li>수혈 시작·15분 후·단위 완료 시 활력징후·SpO2 측정·기록</li></ul>`}},
+  {chap:"3장",tag:"신체보호대 3.12",q:"신체보호대 사용 중 정기 관찰 주기는?",choices:["30분마다","1시간마다","2시간마다","4시간마다"],ans:2,g:{tag:"신체보호대 지침 3.12",title:"신체보호대 관리 기준",body:`<ul><li>정기 관찰: <b>2시간마다</b> — 감각·운동·순환·호흡·피부 상태 기록</li><li>부작용 발생 시: 즉시 제거 → 담당의 보고 → 환자안전사고보고서 작성</li></ul>`}},
+  {chap:"4장",tag:"응급카트 4.3",q:"입원 병동 응급카트 봉인(seal) 유지 확인 주기는?",choices:["매 근무조마다","주 1회 이상","월 1회","분기 1회"],ans:0,g:{tag:"응급카트 지침 4.3",title:"응급의약품 보관 및 점검",body:`<ul><li>입원 병동: <b>매 근무조</b>마다 봉인 유지 확인</li><li>주 1회 이상: 수량·후두경 불밝기 점검</li><li>월 1회: 유효기간 점검 / 의약품 유효기간 6개월 이상 유지</li></ul>`}},
+  {chap:"4장",tag:"고위험약 4.3",q:"고농도 전해질제제(KCl) 말초정맥 투여 시 최대 희석 농도는?",choices:["50mEq/L","100mEq/L","200mEq/L","400mEq/L"],ans:1,g:{tag:"고위험의약품 지침 4.3",title:"고농도 전해질제제 관리",body:`<ul><li>원액 정맥 투여 <b>절대 금기</b> — 반드시 희석 후 투여</li><li>KCl 말초정맥 최대 농도: <b>100mEq/L</b></li><li>KCl 중심정맥 최대 농도: 400mEq/L</li></ul>`}},
+  {chap:"4장",tag:"냉장보관 4.3",q:"냉장보관 의약품의 온도 점검 횟수는?",choices:["1일 1회","1일 2회","주 1회","매 근무조"],ans:1,g:{tag:"냉장보관 지침 4.3",title:"냉장보관 의약품 관리",body:`<ul><li>적정 온도: <b>2~8°C</b></li><li>온도 점검: <b>1일 2회</b> 측정 후 점검일지 기록</li><li>온도 이탈 시: 가까운 병동으로 이동 → 약제부(☎7488) 문의</li></ul>`}},
+  {chap:"4장",tag:"마약류 4.3",q:"마약류 저장시설 점검부 작성 횟수는?",choices:["주 1회","매 근무조","1일 1회","월 1회"],ans:2,g:{tag:"마약류 지침 4.3",title:"마약류 보관 및 점검",body:`<ul><li>마약류 저장시설: <b>1일 1회</b> 점검부 작성</li><li>매 근무조마다 사용 여부 확인 → PHIS 마약류 점검대장 기록</li><li>마약: 이중 잠금장치 견고한 장소(철제 이상)</li></ul>`}},
+  {chap:"4장",tag:"주사약 4.4",q:"성인 말초정맥 카테터 정기 교체 주기는?",choices:["24시간","48시간","72시간","96시간"],ans:3,g:{tag:"주사약 취급 지침 4.4",title:"주사용 의약품 및 카테터 관리",body:`<ul><li>성인 말초정맥 카테터: <b>96시간마다</b> 교체</li><li>응급상황 삽입 시: 48시간 이내 교체</li><li>혈액·혈액제제·지방제제 수액세트: 24시간 이내 교체</li></ul>`}},
+  {chap:"4장",tag:"지참약 4.5",q:"환자 지참약 관리에서 간호사가 입원 시 취해야 할 첫 조치는?",choices:["환자가 직접 보관하도록 안내","모두 수거 후 DUR 이용 식별","즉시 폐기","보호자에게 반환"],ans:1,g:{tag:"지참약 지침 4.5",title:"지참약 관리 절차",body:`<ul><li>입원 시 지참약 복용 여부 확인 → <b>모두 수거</b></li><li>DUR 동의 시: DUR 정보 이용 식별</li><li>퇴원 시까지 환자 직접 보관 금지 → 별도 보관장에 간호사 관리</li></ul>`}},
+  {chap:"5장",tag:"수술확인 1.3",q:"수술 전 Sign-In 참여자 구성으로 올바른 것은?",choices:["수술참여의사만","환자(가능 시)·수술참여의사·마취의·수술실간호사","마취의와 수술실간호사만","집도의와 순환간호사만"],ans:1,g:{tag:"수술 안전 지침 1.3",title:"Sign-In / Time-Out 절차",body:`<ul><li>Sign-In 시점: <b>마취 유도 전</b></li><li>참여자: 환자(가능 시)·수술참여의사·마취의·수술실간호사</li><li>Time-Out: 피부 절개 전, 같은 팀원 참여</li></ul>`}},
+  {chap:"5장",tag:"수술계수 5.2",q:"수술계수 불일치 발생 시 첫 번째 대처는?",choices:["즉시 창상 봉합","집도의·상위자 즉시 보고 후 전체 계수 반복","즉시 X-ray 촬영","환자안전사고보고서 즉시 작성"],ans:1,g:{tag:"수술 계수 지침 5.2",title:"수술계수 불일치 대처 절차",body:`<ul><li>불일치 즉시: <b>집도의·상위자에게 보고</b> → 전체 계수 반복</li><li>소독간호사: 멸균영역 / 순회간호사: 비멸균영역 확인</li><li>못 찾은 경우: wound 봉합 전 술 중 X-ray 촬영</li></ul>`}},
+  {chap:"5장",tag:"진정모니터 5.4",q:"진정 치료 중 성인 환자 활력징후 측정 간격은?",choices:["1분마다","5분마다","10분마다","15분마다"],ans:1,g:{tag:"진정 모니터링 지침 5.4",title:"진정 치료 모니터링 기준",body:`<ul><li>진정 중: 산소포화도·맥박·호흡수·혈압·진정수준 <b>5분마다</b> 측정</li><li>진정 후 회복 중 성인: 15분 간격, 최소 30분 이상</li><li>퇴실 기준(입원): Modified Aldrete 8점 이상</li></ul>`}},
+  {chap:"5장",tag:"수술장 5.6",q:"수술장 제한구역 출입 시 착용해야 할 복장은?",choices:["수술복과 평상복 혼재 가능","수술복·마스크·모자·수술장용 실내화","수술복과 모자만","일반 유니폼과 마스크"],ans:1,g:{tag:"수술장 환경 지침 5.6",title:"수술장 구역별 복장 기준",body:`<ul><li><b>제한구역</b>: 수술복+마스크+모자+수술장용 실내화</li><li>준제한구역: 수술복+모자+수술장용 실내화</li><li>비제한구역: 수술복과 평상복 혼재 가능</li></ul>`}},
+  {chap:"5장",tag:"간호기록 3.1",q:"DAR 형식으로 간호기록 작성 최소 주기는?",choices:["주 1회 이상","상태 변화 시에만","1일 1회 이상","퇴원 시 한 번"],ans:2,g:{tag:"간호기록 지침 3.1",title:"간호과정 기록 기준",body:`<ul><li>입원 24시간 이내 초기평가를 토대로 간호과정 기록</li><li>DAR(Data·Action·Response) <b>1일 1회 이상</b> 기록</li></ul>`}},
+  {chap:"6·8장",tag:"격리지침 8.8",q:"공기주의 격리 환자 접촉 시 직원이 착용해야 할 마스크는?",choices:["일반 마스크","N95 마스크","KF80 마스크","외과용 마스크"],ans:1,g:{tag:"격리 지침 8.8",title:"전파 경로별 격리 및 보호구",body:`<ul><li><b>공기주의</b>(A): 결핵·수두·홍역 → 직원 <b>N95 마스크</b></li><li>비말주의(D): 인플루엔자·코로나19 → 일반 마스크</li><li>접촉주의(C): C.D·VRE·MRSA·CRE → 가운+장갑</li></ul>`}},
+  {chap:"6·8장",tag:"중심정맥관 8.4",q:"중심정맥관 삽입부위 확인사항 기록 주기는?",choices:["1일 1회","매 근무조마다","주 1회","48시간마다"],ans:1,g:{tag:"카테터 지침 8.4",title:"혈관 내 카테터 감염 관리",body:`<ul><li>중심정맥관 삽입부위 확인: <b>매 근무조마다</b> 관찰·기록</li><li>삽입 시: 모자·마스크·멸균가운·멸균장갑·멸균대공포 사용</li></ul>`}},
+  {chap:"6·8장",tag:"유치도뇨관 8.4",q:"유치도뇨관 소변백의 올바른 위치는?",choices:["환자 머리 위","방광보다 높은 위치","방광 아래, 바닥에 닿지 않게","침대 난간에 고정"],ans:2,g:{tag:"도뇨관 지침 8.4",title:"유치도뇨관 감염 관리",body:`<ul><li>소변백: 항상 <b>방광 아래</b>, 바닥에 닿지 않도록</li><li>소변 비운 후: 소변출구 꼭지 알코올솜 닦기 → 뚜껑 씌우기</li></ul>`}},
+  {chap:"6·8장",tag:"학대보고 6.2",q:"학대·폭력 피해자 발견 시 주간 사례접수 연락처는?",choices:["7119","7494(사회복지사) 또는 해바라기센터","8282","7488(약제부)"],ans:1,g:{tag:"학대·폭력 지침 6.2",title:"학대·폭력 피해자 보고 절차",body:`<ul><li>응급치료·의학적 검사·증거채취 → 의사 판단하에 즉시 112 신고</li><li>주간: 사회복지사 <b>☎7494</b> 또는 해바라기센터 연계</li><li>야간: 응급행정실 ☎7158 또는 해바라기센터 연계</li></ul>`}},
+  {chap:"6·8장",tag:"호흡기 8.4",q:"nebulizer 키트 교환 주기는?",choices:["매 사용 후","매일","주 1회","48시간마다"],ans:1,g:{tag:"호흡기 치료기구 지침 8.4",title:"호흡기 치료기구 감염 관리",body:`<ul><li>Nebulizer 키트: <b>매일</b> 새것으로 교환</li><li>개방형 흡인 카테터: 매회 교환 / 멸균 생리식염수: 매회 교환</li></ul>`}}
+];
+const CHAP_KEYS=[["1장"],["2장"],["3장"],["4장"],["5장"],["6·8장"]];
+const CHAP_NAMES=["1장·안전 보장","2장·진료 전달","3장·환자 평가·치료","4장·의약품 관리","5장·수술 및 진정","6·8장·권리·감염"];
+
+/* ══════════════════════════════════════
+   SUPABASE
+══════════════════════════════════════ */
+let SB_URL='',SB_KEY='',sbReady=false;
+function loadSbCfg(){
+  SB_URL=localStorage.getItem('sb_url')||'';
+  SB_KEY=localStorage.getItem('sb_key')||'';
+  sbReady=!!(SB_URL&&SB_KEY);
+  updateDbStatus();
+  if(SB_URL)document.getElementById('sb-url').value=SB_URL;
+  if(SB_KEY)document.getElementById('sb-key').value=SB_KEY;
+}
+function updateDbStatus(){
+  const dot=document.getElementById('db-dot'),lbl=document.getElementById('db-label');
+  if(sbReady){dot.className='dot ok';lbl.textContent='Supabase 실시간 랭킹 연결됨'}
+  else{dot.className='dot warn';lbl.textContent='로컬 저장 모드 (DB 버튼으로 실시간 랭킹 설정 가능)'}
+}
+function saveSupabase(){
+  const u=document.getElementById('sb-url').value.trim().replace(/\/$/,'');
+  const k=document.getElementById('sb-key').value.trim();
+  if(!u||!k){showToast('URL과 Key를 모두 입력해주세요!');return}
+  localStorage.setItem('sb_url',u);localStorage.setItem('sb_key',k);
+  SB_URL=u;SB_KEY=k;sbReady=true;
+  updateDbStatus();toggleSetup();showToast('✅ Supabase 연결 완료!');fetchLb(true);
+}
+async function sbReq(path,method='GET',body=null){
+  const opts={method,headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation'}};
+  if(body)opts.body=JSON.stringify(body);
+  const r=await fetch(SB_URL+'/rest/v1/'+path,opts);
+  if(!r.ok)throw new Error(await r.text());
+  const t=await r.text();return t?JSON.parse(t):null;
+}
+async function sbUpsert(name,score,total){
+  const pts=calcPts(score,total),pct=Math.round(score/total*100);
+  const ex=await sbReq(`scores?name=eq.${encodeURIComponent(name)}&select=*`);
+  if(ex&&ex.length>0){
+    const row=ex[0];
+    await sbReq(`scores?id=eq.${row.id}`,'PATCH',{total_pts:row.total_pts+pts,games:row.games+1,total_q:row.total_q+total,total_correct:row.total_correct+score,best_pct:Math.max(row.best_pct,pct),updated_at:new Date().toISOString()});
+    return{pts,cumPts:row.total_pts+pts};
+  }else{
+    await sbReq('scores','POST',{name,total_pts:pts,games:1,total_q:total,total_correct:score,best_pct:pct});
+    return{pts,cumPts:pts};
+  }
+}
+async function sbFetch(col='total_pts'){
+  const rows=await sbReq(`scores?select=*&order=${col}.desc&limit=100`);
+  return rows.map(r=>({name:r.name,total_pts:r.total_pts,games:r.games,total_q:r.total_q,total_correct:r.total_correct,best_pct:r.best_pct}));
+}
+
+/* ══════════════════════════════════════
+   LOCAL FALLBACK
+══════════════════════════════════════ */
+const LS='quiz_lb_v3';
+function lsLoad(){try{return JSON.parse(localStorage.getItem(LS)||'[]')}catch(e){return[]}}
+function lsSave(d){try{localStorage.setItem(LS,JSON.stringify(d))}catch(e){}}
+function lsUpsert(name,score,total){
+  const lb=lsLoad(),pts=calcPts(score,total),pct=Math.round(score/total*100);
+  const idx=lb.findIndex(r=>r.name===name);
+  let cumPts=pts;
+  if(idx>=0){lb[idx].total_pts+=pts;lb[idx].games+=1;lb[idx].total_q+=total;lb[idx].total_correct+=score;lb[idx].best_pct=Math.max(lb[idx].best_pct,pct);cumPts=lb[idx].total_pts;}
+  else lb.push({name,total_pts:pts,games:1,total_q:total,total_correct:score,best_pct:pct});
+  lsSave(lb);return{pts,cumPts};
+}
+function lsFetch(sort='total_pts'){return[...lsLoad()].sort((a,b)=>b[sort]-a[sort])}
+
+/* ══════════════════════════════════════
+   SHARED
+══════════════════════════════════════ */
+function calcPts(s,t){const p=s/t;let b=s*10;if(p===1)b+=50;else if(p>=.8)b+=20;else if(p>=.6)b+=10;return b;}
+const SORT_COL={pts:'total_pts',pct:'best_pct',games:'games'};
+let lbSort='pts',lbData=[];
+async function upsertScore(name,score,total){
+  if(sbReady){try{return await sbUpsert(name,score,total)}catch(e){console.warn(e)}}
+  return lsUpsert(name,score,total);
+}
+async function fetchLb(force=false){
+  try{
+    let data;
+    if(sbReady){data=await sbFetch(SORT_COL[lbSort]);}
+    else{data=lsFetch(SORT_COL[lbSort]);}
+    lbData=data;
+  }catch(e){lbData=lsFetch(SORT_COL[lbSort]);}
+  renderHomeLb();renderFullLb();
+}
+
+/* ══════════════════════════════════════
+   PWA INSTALL
+══════════════════════════════════════ */
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();deferredPrompt=e;
+  if(!localStorage.getItem('install_dismissed'))document.getElementById('install-banner').style.display='flex';
+});
+window.addEventListener('appinstalled',()=>{
+  document.getElementById('install-banner').style.display='none';
+  showToast('✅ 홈 화면에 설치 완료!');
+});
+function installApp(){
+  if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{deferredPrompt=null;document.getElementById('install-banner').style.display='none';});}
+  else{showToast('브라우저 메뉴에서 "홈 화면에 추가"를 눌러주세요');}
+}
+function dismissInstall(){localStorage.setItem('install_dismissed','1');document.getElementById('install-banner').style.display='none';}
+
+/* ══════════════════════════════════════
+   STATE
+══════════════════════════════════════ */
+let userName='',curMode='all',curChap=null,curSet=[],curIdx=0,curScore=0,curWrong=[],answered=false;
+
+/* ══════════════════════════════════════
+   INIT
+══════════════════════════════════════ */
+window.onload=function(){
+  if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
+  loadSbCfg();
+  const n=localStorage.getItem('quiz_name_v3');
+  if(n){userName=n;applyName();}
+  fetchLb();
+  updateShareRow();
+};
+
+/* ══════════════════════════════════════
+   SETUP / SHARE
+══════════════════════════════════════ */
+let setupOpen=false;
+function toggleSetup(){setupOpen=!setupOpen;document.getElementById('setup-box').style.display=setupOpen?'block':'none';}
+function updateShareRow(){
+  const hasUrl=window.location.protocol==='https:';
+  document.getElementById('share-row').style.display=hasUrl?'flex':'none';
+}
+function shareApp(){
+  const url=window.location.href;
+  if(navigator.share){navigator.share({title:'인증 마스터 퀴즈',text:'병원 의료기관 평가인증 대비 간호사 퀴즈! 같이 도전해봐요 🏥',url});}
+  else{navigator.clipboard.writeText(url).then(()=>showToast('🔗 링크 복사 완료!'));}
+}
+function showQR(){
+  const url=encodeURIComponent(window.location.href);
+  window.open(`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${url}`,'_blank');
+}
+
+/* ══════════════════════════════════════
+   NAME
+══════════════════════════════════════ */
+function setName(){
+  const v=document.getElementById('name-input').value.trim();
+  if(!v){showToast('이름을 입력해주세요!');return}
+  userName=v;localStorage.setItem('quiz_name_v3',v);applyName();
+}
+function applyName(){
+  document.getElementById('user-disp').textContent=userName;
+  document.getElementById('cur-user').style.display='flex';
+  document.getElementById('name-input').value='';
+}
+function changeName(){
+  document.getElementById('cur-user').style.display='none';
+  document.getElementById('name-input').focus();
+}
+
+/* ══════════════════════════════════════
+   SCREENS
+══════════════════════════════════════ */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  if(id==='screen-lb')fetchLb(true);
+}
+
+/* ══════════════════════════════════════
+   QUIZ
+══════════════════════════════════════ */
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+function startMode(mode,chapIdx){
+  if(!userName){showToast('먼저 이름을 입력해주세요!');return}
+  curMode=mode;curChap=chapIdx;
+  curSet=mode==='all'?shuffle([...ALL_Q]):shuffle(ALL_Q.filter(q=>CHAP_KEYS[chapIdx].includes(q.chap)));
+  curIdx=0;curScore=0;curWrong=[];answered=false;
+  document.getElementById('q-lbl').textContent=mode==='all'?'전체 랜덤 30문제':CHAP_NAMES[chapIdx];
+  showScreen('screen-quiz');renderQ();
+}
+function retryMode(){startMode(curMode,curChap)}
+function confirmBack(){
+  if(answered||curIdx===0){showScreen('screen-home');return}
+  if(confirm('퀴즈를 중단하고 홈으로 돌아갈까요?'))showScreen('screen-home');
+}
+function renderQ(){
+  if(curIdx>=curSet.length){showResultScreen();return}
+  const q=curSet[curIdx];answered=false;
+  const total=curSet.length;
+  document.getElementById('q-num').textContent=`문제 ${curIdx+1} / ${total}`;
+  document.getElementById('q-ctr').textContent=`${curIdx+1}/${total}`;
+  document.getElementById('q-tag').textContent=q.tag;
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('prog-bar').style.width=Math.round(curIdx/total*100)+'%';
+  const ch=document.getElementById('choices');ch.innerHTML='';
+  q.choices.forEach((c,i)=>{
+    const btn=document.createElement('button');btn.className='cbtn pop';btn.style.animationDelay=(i*55)+'ms';
+    btn.innerHTML=`<span class="cnum">${i+1}</span><span style="flex:1">${c}</span><span class="cico"></span>`;
+    btn.onclick=()=>handleAns(i,q);ch.appendChild(btn);
+  });
+  document.getElementById('feedback').style.display='none';
+  document.getElementById('guide-area').style.display='none';
+  document.getElementById('guide-area').innerHTML='';
+}
+function handleAns(chosen,q){
+  if(answered)return;answered=true;
+  const ok=chosen===q.ans;
+  if(ok)curScore++;else curWrong.push({q:q.q,ans:q.choices[q.ans],tag:q.tag});
+  document.querySelectorAll('.cbtn').forEach((b,i)=>{
+    b.disabled=true;
+    if(i===q.ans){b.classList.add('correct');b.querySelector('.cico').textContent='✓'}
+    else if(i===chosen&&!ok){b.classList.add('wrong');b.querySelector('.cico').textContent='✗'}
+  });
+  const fb=document.getElementById('feedback');fb.style.display='flex';fb.className='feedback '+(ok?'ok':'ng');
+  fb.innerHTML=ok?`<span style="font-size:18px">✅</span> 정답입니다! 훌륭해요!`:`<span style="font-size:18px">❌</span> 오답! 정답: <b style="margin-left:4px">${q.ans+1}번 — ${q.choices[q.ans]}</b>`;
+  const ga=document.getElementById('guide-area');ga.style.display='block';ga.className='guide-wrap slide-up';
+  ga.innerHTML=`<div class="gcard"><span class="gtag">★ 관련 병원 지침</span><div class="gtitle">${q.g.title}</div><div class="gbody">${q.g.body}</div></div><button class="next-btn" onclick="nextQ()">${curIdx+1<curSet.length?'다음 문제 →':'결과 보기 →'}</button>`;
+}
+function nextQ(){curIdx++;renderQ()}
+
+/* ══════════════════════════════════════
+   RESULT
+══════════════════════════════════════ */
+async function showResultScreen(){
+  const total=curSet.length,pct=Math.round(curScore/total*100);
+  const{pts,cumPts}=await upsertScore(userName,curScore,total);
+  let trophy,title,msg;
+  if(pct===100){trophy='🥇';title='완벽해요! 인증 마스터!';msg=`${total}문제 모두 정답! 동료들에게도 알려주세요!`}
+  else if(pct>=80){trophy='🌟';title='참 잘했어요!';msg=`${curScore}/${total} 정답! 조금만 더 복습하면 완벽해질 거예요.`}
+  else if(pct>=60){trophy='💪';title='열심히 하고 있어요!';msg=`${curScore}/${total} 정답. 틀린 지침 내용을 다시 확인해 보세요!`}
+  else{trophy='📖';title='조금 더 공부해요!';msg=`${curScore}/${total} 정답. 아직 기회가 있어요! 가이드라인 팝업을 꼼꼼히 복습해보세요.`}
+  document.getElementById('r-trophy').textContent=trophy;
+  document.getElementById('r-title').textContent=title;
+  document.getElementById('r-sub').textContent=curMode==='all'?'전체 랜덤':CHAP_NAMES[curChap];
+  document.getElementById('r-big').textContent=curScore+'/'+total;
+  document.getElementById('rs-pct').textContent=pct+'%';
+  document.getElementById('rs-wrong').textContent=curWrong.length+'문제';
+  document.getElementById('rs-cum').textContent=cumPts+'점';
+  document.getElementById('pts-box').innerHTML=`이번 획득 <span class="pts-big">+${pts}점</span>&nbsp;·&nbsp;누적 총점 <span class="pts-big">${cumPts}점</span>`;
+  document.getElementById('r-msg').textContent=msg;
+  const ws=document.getElementById('wrong-section');
+  if(curWrong.length>0){ws.style.display='block';document.getElementById('wrong-list').innerHTML=curWrong.map(w=>`<div class="wi"><div class="wi-q">${w.q}</div><div class="wi-a">정답: ${w.ans}</div><div class="wi-tag">[${w.tag}]</div></div>`).join('');}
+  else ws.style.display='none';
+  document.getElementById('prog-bar').style.width='100%';
+  showScreen('screen-result');fetchLb(true);
+}
+
+/* ══════════════════════════════════════
+   LEADERBOARD
+══════════════════════════════════════ */
+function switchSort(s){
+  lbSort=s;
+  ['pts','pct','games'].forEach(k=>document.getElementById('lf-'+k).classList.toggle('active',k===s));
+  fetchLb(true);
+}
+function lbRows(data,limit){
+  if(!data||data.length===0)return'<div class="lb-empty">아직 기록이 없어요. 첫 번째 도전자가 되어보세요! 🎯</div>';
+  const rows=limit?data.slice(0,limit):data;
+  return rows.map((r,i)=>{
+    const rank=i+1,rkTxt=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':rank,rkCls=rank<=3?'r'+rank:'';
+    const isMe=r.name===userName;
+    const avgPct=r.total_q>0?Math.round(r.total_correct/r.total_q*100):0;
+    const mainVal=lbSort==='pct'?r.best_pct+'%':lbSort==='games'?r.games+'회':r.total_pts+'점';
+    const mainLbl=lbSort==='pct'?'최고 정답률':lbSort==='games'?'도전 횟수':'누적 점수';
+    return`<div class="lb-row${isMe?' me':''}"><div class="lb-rank ${rkCls}">${rkTxt}</div><div class="lb-info"><div class="lb-name${isMe?' me':''}">${r.name}${isMe?' 👈':''}</div><div class="lb-detail">${r.games}회 도전 · 평균 ${avgPct}% · 누적 ${r.total_pts}점</div></div><div><div class="lb-val">${mainVal}</div><div class="lb-val-lbl">${mainLbl}</div></div></div>`;
+  }).join('');
+}
+function renderHomeLb(){
+  const sorted=lbSort==='pct'?[...lbData].sort((a,b)=>b.best_pct-a.best_pct):lbSort==='games'?[...lbData].sort((a,b)=>b.games-a.games):lbData;
+  document.getElementById('home-lb-body').innerHTML=lbRows(sorted,5);
+  document.getElementById('home-lb-meta').textContent=sbReady?'🟢 실시간':'📱 로컬';
+}
+function renderFullLb(){
+  const sorted=lbSort==='pct'?[...lbData].sort((a,b)=>b.best_pct-a.best_pct):lbSort==='games'?[...lbData].sort((a,b)=>b.games-a.games):lbData;
+  document.getElementById('full-lb-body').innerHTML=lbRows(sorted,null);
+  document.getElementById('full-lb-meta').textContent=sorted.length+'명';
+}
+
+/* ══════════════════════════════════════
+   TOAST
+══════════════════════════════════════ */
+let toastT;
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600);}
+</script>
+</body>
+</html>
